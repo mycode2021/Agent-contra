@@ -1,6 +1,6 @@
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import argparse
 from time import strftime

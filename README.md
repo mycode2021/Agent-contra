@@ -14,7 +14,7 @@ apt install -y freeglut3 freeglut3-dev
 ```
 - **CentOS**
 ```bash
-dnf install -y freeglut freeglut-devel
+yum install -y freeglut freeglut-devel
 ```
 
 ## 2. Python and Modules
