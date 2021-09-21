@@ -2,7 +2,7 @@ English | [简体中文](./README.cn.md)
 
 # Description
 
-Play Contra based on PPO algorithm. This project is modified from a Super Mario Bros deep reinforcement learning project. The project can be used for testing if you are interested. Good ideas are welcome.
+Play Contra based on PPO with RND algorithm. This project is a testing deep reinforcement learning project. The project can be used for testing if you are interested. Good ideas are welcome.
 
 # Environment
 

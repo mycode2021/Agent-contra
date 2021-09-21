@@ -1,14 +1,7 @@
-import os
-os.environ["OMP_NUM_THREADS"] = "1"
-
-import argparse
-import shutil
 from time import sleep
-
-import torch
 from torch.nn import functional as F
-
-import utils
+import argparse, os, torch, utils
+os.environ["OMP_NUM_THREADS"] = "1"
 
 
 def get_args(config):
@@ -17,17 +10,16 @@ def get_args(config):
     args.add_argument("--game", type=str, default="Contra-Nes")
     args.add_argument("--state", type=str, default="Level1")
     args.add_argument("--action_type", type=str, default="complex")
-    args.add_argument("--loading_path", type=config["model_path"]["type"],
-                                        default=config["model_path"]["default"])
+    args.add_argument("--model_path", type=config["model_path"]["type"],
+                                      default=config["model_path"]["default"])
     args.add_argument("--from_model", type=str, default="")
     return args.parse_args()
 
-
 def run_test(opt):
     torch.manual_seed(123)
-    memory = "%s/%s"%(opt.loading_path, opt.from_model)
+    memory = "%s/%s"%(opt.model_path, opt.from_model)
     assert os.path.isfile(memory), "The trained model does not exist."
-    score, time = 0, 0
+    score = 0
 
     try:
         env, num_inputs, num_actions = utils.create_runtime_env(opt.game, opt.state, opt.action_type)

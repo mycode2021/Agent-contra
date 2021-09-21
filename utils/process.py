@@ -1,33 +1,28 @@
-import os
-import time
 from contextlib import contextmanager
 from datetime import datetime
-
-import numpy as np
-import torch
+from time import sleep
 from torch import multiprocessing as mp
 from torch.nn import functional as F
-
-import utils
+import numpy as np, os, torch, utils
 
 
 def runner(opt, global_model):
     torch.cuda.manual_seed(123) if torch.cuda.is_available() else torch.manual_seed(123)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     action_space = utils.Actions.get(opt.action_type)
     done, curr_step, score, max_score, count = True, 0, 0, 0, 0
 
     try:
-        env, num_inputs, num_actions = utils.create_runtime_env(opt.game, opt.state, opt.action_type,
-                                                                record=opt.record_path)
+        env, num_inputs, num_actions = utils.create_runtime_env(
+            opt.game, opt.state, opt.action_type, record=opt.record_path)
         local_model = utils.PPO(num_inputs, num_actions)
-        torch.cuda.is_available() and local_model.cuda()
+        local_model.to(device)
         local_model.eval()
         state = torch.from_numpy(env.reset())
 
         while True:
             curr_step += 1
-            if torch.cuda.is_available():
-                state = state.cuda()
+            state = state.to(device)
             done and local_model.load_state_dict(global_model.state_dict())
             logits, value = local_model(state)
             policy = F.softmax(logits, dim=1)
@@ -35,17 +30,17 @@ def runner(opt, global_model):
             state, reward, done, info = env.step(action)
             score += reward
             env.render()
-            time.sleep(0.03)
+            sleep(0.03)
             with open("%s/runner.log"%opt.log_path, "a") as f:
                 now = datetime.now()
                 f.write("Time: %s Status: %s Reward: %+.2f Action: %-s\n"%(str(datetime.date(now))+" "+str(
-                        datetime.time(now)), "end" if done else "run", reward, " + ".join(action_space[action])))
+                    datetime.time(now)), "end" if done else "run", reward, " + ".join(action_space[action])))
             if curr_step > opt.global_steps:
                 done = True
             if done:
                 with open("%s/evaluate.log"%opt.log_path, "a") as f:
                     f.write("Episode: %d, Step: %d, Score: %+.2f, Evaluation: %s.\n"%(
-                            count, curr_step, score, "success" if info["finish"] else "failure"))
+                        count, curr_step, score, "success" if info["finish"] else "failure"))
                 if info["finish"]:
                     torch.save(local_model.state_dict(), "%s/%d.pass"%(opt.saved_path, count))
                 elif score > max_score:
@@ -58,7 +53,6 @@ def runner(opt, global_model):
         print("The keyboard caused the agent process to exit.")
     finally:
         env.close()
-
 
 def worker(worker_conn, agent_conn, kwargs):
     def run(env, action):
@@ -86,7 +80,6 @@ def worker(worker_conn, agent_conn, kwargs):
     finally:
         for env in envs:
             env.close()
-
 
 class MultiprocessAgent:
     def __init__(self, opt, context="spawn"):

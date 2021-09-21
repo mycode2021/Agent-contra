@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 workspace="/root"
 process=$(ps -ef|grep train.py|grep -v grep)
 

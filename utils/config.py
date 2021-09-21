@@ -22,6 +22,10 @@ configure = {
         "type": float,
         "default": 0.2
     },
+    "update_proportion": {
+        "type": float,
+        "default": 0.25
+    },
     "batch_size": {
         "type": int,
         "default": 16
@@ -41,10 +45,6 @@ configure = {
     "save_interval": {
         "type": int,
         "default": 25
-    },
-    "loading_path": {
-        "type": str,
-        "default": "testing_models"
     },
     "model_path": {
         "type": str,

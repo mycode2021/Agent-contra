@@ -1,5 +1,6 @@
 SIMPLE_MOVEMENT = [
     [],
+    ['B'],
     ['UP', 'B'],
     ['DOWN', 'B'],
     ['LEFT', 'B'],
@@ -9,6 +10,7 @@ SIMPLE_MOVEMENT = [
 
 COMPLEX_MOVEMENT = [
     [],
+    ['B'],
     ['UP', 'B'],
     ['DOWN', 'B'],
     ['LEFT', 'B'],
