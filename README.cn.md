@@ -24,9 +24,9 @@ pip install gym-retro torch numpy opencv-python pyglet==1.5.0 tensorboard
 ```
 
 ## 3. 游戏ROM
-魂斗罗的rom文件sha文件，你需要使用openAI的gym-retro-integration工具。
+你需要使用openAI的gym-retro-integration工具提取rom文件和sha文件并与Contra-Nes目录合并成一个完整的环境。
 ```bash
-cp -Rp retro/data/experimental retro/data/stable
+cp -Rp retro/data/experimental/Contra-Nes "python的library库"/site-packages/retro/data/stable
 ```
 
 ###### :point_right: **提示: gym-retro-integration工具linux下你可以通过gym-retro源码编译获得。ROM文件也许你可以在 https://romhustler.org 找到。**

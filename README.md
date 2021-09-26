@@ -24,9 +24,9 @@ pip install gym-retro torch numpy opencv-python pyglet==1.5.0 tensorboard
 ```
 
 ## 3. Game ROM
-Contra rom files and sha files, you need to use openAI's gym-retro-integration.
+You need to use openAI's gym-retro-integration gets rom files and sha files and merge with the Contra-Nes catalog to form a complete environment.
 ```bash
-cp -Rp retro/data/experimental retro/data/stable
+cp -Rp retro/data/experimental/Contra-Nes "python's library directory"/site-packages/retro/data/stable
 ```
 
 ###### :point_right: **Tips: The gym-retro-Integration tool is available under linux through the gym-retro source compilation. ROM file maybe you can find from https://romhustler.org.**
