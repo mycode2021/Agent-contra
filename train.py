@@ -46,17 +46,17 @@ def run_train(opt):
     run = mp.get_context("spawn")
     process = run.Process(target=utils.runner, args=(opt, global_model))
     process.start()
-    curr_states = torch.from_numpy(np.concatenate(envs.reset(), 0))
-    curr_states = curr_states.to(device)
-    curr_episode, intrinsic_mean = 0, []
+    state = torch.from_numpy(np.concatenate(envs.reset(), 0))
+    state = state.to(device)
+    curr_episode, intrinsic_rewards = 0, []
 
     while True:
         curr_episode += 1
         old_log_policies, actions, values, states, rewards, dones = [], [], [], [], [], []
 
         for _ in range(opt.local_steps):
-            states.append(curr_states)
-            logits, value = global_model(curr_states)
+            states.append(state)
+            logits, value = global_model(state)
             values.append(value.squeeze())
             policy = F.softmax(logits, dim=1)
             old_m = Categorical(policy)
@@ -67,19 +67,18 @@ def run_train(opt):
             action = action.cpu()
             state, reward, done, info = envs.step(action)
             state = torch.from_numpy(np.concatenate(state, 0))
-            intrinsic_reward = utils.compute_intrinsic_reward(rnd_model, device, state)
-            intrinsic_mean.append(intrinsic_reward)
-            intrinsic_reward = np.clip(
-                (np.sqrt(intrinsic_reward)-np.sqrt(np.mean(intrinsic_mean)))/2000., 0., 1.)
-            reward += intrinsic_reward
             state = state.to(device)
+            intrinsic_reward = rnd_model.reward(state.float())
+            intrinsic_rewards.append(intrinsic_reward)
+            intrinsic_reward *= intrinsic_reward > np.mean(intrinsic_rewards, axis=0)
+            intrinsic_reward = (intrinsic_reward*0.5/(np.max(intrinsic_rewards, axis=0)+1.)) - 0.3
+            reward += np.max((intrinsic_reward, np.zeros(opt.processes)), axis=0)
             reward = torch.FloatTensor(reward).to(device)
             done = torch.FloatTensor(done).to(device)
             rewards.append(reward)
             dones.append(done)
-            curr_states = state
 
-        _, next_value, = global_model(curr_states)
+        _, next_value, = global_model(state)
         next_value = next_value.squeeze()
         old_log_policies = torch.cat(old_log_policies).detach()
         actions = torch.cat(actions)
@@ -125,9 +124,6 @@ def run_train(opt):
                 total_loss.backward()
                 torch.nn.utils.clip_grad_norm_(global_model.parameters(), 0.5)
                 optimizer.step()
-
-        if curr_episode % opt.save_interval == 0 and curr_episode > 0:
-            torch.save(global_model.state_dict(), "%s/%d.data"%(opt.saved_path, curr_episode))
 
         with open("%s/train.log"%opt.log_path, "a") as f:
             f.write("Time: %s, Episode: %d, Loss: %f.\n"%(strftime("%F %T"), curr_episode, total_loss))

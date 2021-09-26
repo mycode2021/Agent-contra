@@ -19,14 +19,13 @@ def run_test(opt):
     torch.manual_seed(123)
     memory = "%s/%s"%(opt.model_path, opt.from_model)
     assert os.path.isfile(memory), "The trained model does not exist."
-    score = 0
 
     try:
         env, num_inputs, num_actions = utils.create_runtime_env(opt.game, opt.state, opt.action_type)
         model = utils.PPO(num_inputs, num_actions)
         model.eval()
         model.load_state_dict(torch.load(memory, map_location=torch.device("cpu")))
-        state = torch.from_numpy(env.reset())
+        score, state = 0, torch.from_numpy(env.reset())
 
         while True:
             logits, value = model(state)

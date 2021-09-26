@@ -31,10 +31,12 @@ def runner(opt, global_model):
             score += reward
             env.render()
             sleep(0.03)
+
             with open("%s/runner.log"%opt.log_path, "a") as f:
                 now = datetime.now()
                 f.write("Time: %s Status: %s Reward: %+.2f Action: %-s\n"%(str(datetime.date(now))+" "+str(
                     datetime.time(now)), "end" if done else "run", reward, " + ".join(action_space[action])))
+
             if curr_step > opt.global_steps:
                 done = True
             if done:
