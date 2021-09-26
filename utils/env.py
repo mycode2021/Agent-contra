@@ -68,7 +68,7 @@ class ContraWinner(gym.Wrapper):
     def __init__(self, env):
         super(ContraWinner, self).__init__(env)
         self.zeros, self.level, self.lives, self.finish = 0, 0, 0, None
-        self.correct = deque(maxlen=50)
+        self.actions = deque(maxlen=50)
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
@@ -77,10 +77,10 @@ class ContraWinner(gym.Wrapper):
             self.finish = lambda level: level != self.level
         self.lives = max(self.lives, info["lives"])
         info["finish"] = self.finish(info["level"])
-        self.correct.append((action, max(0, reward)))
+        self.actions.append((action, max(0, reward)))
         self.zeros += not reward
-        done |= info["finish"] or info["lives"] < self.lives or self.zeros > 500 or  \
-            self.correct.count((action, 0)) == self.correct.maxlen
+        done |= info["finish"] or info["lives"] < self.lives or self.zeros > 500 \
+            or self.actions.count((action, 0)) == self.actions.maxlen
         if done:
             if info["finish"]:
                 reward += 1000
@@ -90,7 +90,7 @@ class ContraWinner(gym.Wrapper):
 
     def reset(self, **kwargs):
         self.zeros, self.level, self.lives, self.finish = 0, 0, 0, None
-        self.correct.clear()
+        self.actions.clear()
         return self.env.reset(**kwargs)
 
 def create_runtime_env(game, state, action_type, record=False):
