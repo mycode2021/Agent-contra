@@ -14,7 +14,7 @@ def get_args(config):
     args.add_argument("--game", type=str, default="Contra-Nes")
     args.add_argument("--state", type=str, default="Level1")
     args.add_argument("--action_type", type=str, default="complex")
-    args.add_argument("--processes", type=int, default=6)
+    args.add_argument("--processes", type=int, default=3)
     args.add_argument("--from_model", type=str, default="")
     [args.add_argument("--%s"%k, type=v["type"], default=v["default"]) for k, v in config.items()]
     return args.parse_args()
@@ -37,18 +37,24 @@ def run_train(opt):
         print("Loading trained from model %s."%memory)
         map_location = None if torch.cuda.is_available() else device
         global_model.load_state_dict(torch.load(memory, map_location=map_location))
-    global_model.to(device)
+    global_model = global_model.to(device)
     global_model.share_memory()
-    rnd_model.to(device)
-    optimizer = torch.optim.Adam(global_model.parameters(), lr=opt.lr)
+    rnd_model = rnd_model.to(device)
+    optimizer = torch.optim.Adam(
+        list(global_model.parameters())+list(rnd_model.parameters()), lr=opt.lr)
     forward_mse = nn.MSELoss(reduction='none')
     envs = utils.MultiprocessAgent(opt)
     run = mp.get_context("spawn")
     process = run.Process(target=utils.runner, args=(opt, global_model))
     process.start()
-    state = torch.from_numpy(np.concatenate(envs.reset(), 0))
+    state = envs.reset()
+    reward_rms = utils.RunningMeanStd()
+    obs_rms = utils.RunningMeanStd(state.shape)
+    discounted_reward = utils.RewardForwardFilter(0.999)
+    obs_rms.update(state)
+    state = torch.from_numpy(np.concatenate(state, 0))
     state = state.to(device)
-    curr_episode, intrinsic_rewards = 0, []
+    curr_episode = 0
 
     while True:
         curr_episode += 1
@@ -64,15 +70,17 @@ def run_train(opt):
             actions.append(action)
             old_log_policy = old_m.log_prob(action)
             old_log_policies.append(old_log_policy)
-            action = action.cpu()
-            state, reward, done, info = envs.step(action)
+            state, reward, done, info = envs.step(action.cpu())
+            next_obs = ((state-obs_rms.mean)/np.sqrt(obs_rms.var)).clip(-5, 5)
+            next_obs = torch.from_numpy(np.concatenate(next_obs, 0))
+            next_obs = next_obs.to(device)
             state = torch.from_numpy(np.concatenate(state, 0))
             state = state.to(device)
-            intrinsic_reward = rnd_model.reward(state.float())
-            intrinsic_rewards.append(intrinsic_reward)
-            intrinsic_reward *= intrinsic_reward > np.mean(intrinsic_rewards, axis=0)
-            intrinsic_reward = (intrinsic_reward*0.5/(np.max(intrinsic_rewards, axis=0)+1.)) - 0.3
-            reward += np.max((intrinsic_reward, np.zeros(opt.processes)), axis=0)
+            intrinsic_reward = rnd_model.reward(next_obs.float())
+            per_reward = np.array([discounted_reward.update(r) for r in intrinsic_reward])
+            mean, std, count = np.mean(per_reward), np.std(per_reward), len(per_reward)
+            reward_rms.update_from_moments(mean, std**2, count)
+            reward += intrinsic_reward / np.sqrt(reward_rms.var)
             reward = torch.FloatTensor(reward).to(device)
             done = torch.FloatTensor(done).to(device)
             rewards.append(reward)
@@ -115,14 +123,14 @@ def run_train(opt):
                 clamp = torch.clamp(ratio, 1.0-opt.epsilon, 1.0+opt.epsilon)
                 ratio_min = torch.min(ratio*advantages[batch_indices], clamp*advantages[batch_indices])
                 actor_loss = -torch.mean(ratio_min)
-                # critic_loss = torch.mean((R[batch_indices]-value)**2) / 2
                 critic_loss = F.smooth_l1_loss(R[batch_indices], value.squeeze())
                 entropy_loss = torch.mean(new_m.entropy())
-                total_loss = actor_loss + critic_loss - opt.beta * entropy_loss + forward_loss
+                total_loss = actor_loss + critic_loss - opt.beta * entropy_loss
                 writer.add_scalar("PPO agent (loss/episode)", total_loss, curr_episode)
                 optimizer.zero_grad()
                 total_loss.backward()
-                torch.nn.utils.clip_grad_norm_(global_model.parameters(), 0.5)
+                torch.nn.utils.clip_grad_norm_(
+                    list(global_model.parameters())+list(rnd_model.parameters()), 0.5)
                 optimizer.step()
 
         with open("%s/train.log"%opt.log_path, "a") as f:

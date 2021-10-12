@@ -8,11 +8,11 @@ def get_args(config):
     args = argparse.ArgumentParser(
         '''Directions: Testing tool to play contra from the trained model.''')
     args.add_argument("--game", type=str, default="Contra-Nes")
-    args.add_argument("--state", type=str, default="Level1")
+    args.add_argument("--state", type=str, default="Level2")
     args.add_argument("--action_type", type=str, default="complex")
     args.add_argument("--model_path", type=config["model_path"]["type"],
                                       default=config["model_path"]["default"])
-    args.add_argument("--from_model", type=str, default="")
+    args.add_argument("--from_model", type=str, default="250.save")
     return args.parse_args()
 
 def run_test(opt):
@@ -21,7 +21,8 @@ def run_test(opt):
     assert os.path.isfile(memory), "The trained model does not exist."
 
     try:
-        env, num_inputs, num_actions = utils.create_runtime_env(opt.game, opt.state, opt.action_type)
+        env, num_inputs, num_actions = utils.create_runtime_env(
+            opt.game, opt.state, opt.action_type, "records")
         model = utils.PPO(num_inputs, num_actions)
         model.eval()
         model.load_state_dict(torch.load(memory, map_location=torch.device("cpu")))
