@@ -51,8 +51,6 @@ python test.py --game Contra-Nes --state Level1 --from_model *.(pass|save)
 python evaluate.py --game Contra-Nes --state Level1 --from_dir 文件夹（训练产生的trained_models/2021-...）
 ```
 
-###### :point_right: **提示: 参数--from_model或者--from_dir的默认引用位置可以使用--loading_path参数临时指定。**
-
 # 参考说明
 
 :book: https://retro.readthedocs.io/en/latest.

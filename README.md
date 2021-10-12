@@ -51,8 +51,6 @@ python test.py --game Contra-Nes --state Level1 --from_model *.(pass|save)
 python evaluate.py --game Contra-Nes --state Level1 --from_dir Directory (like trained_models/2021-...)
 ```
 
-###### :point_right: **Tips: The --from_model or --from_dir default reference location can be changed by --loading_path.**
-
 # Reference
 
 :book: https://retro.readthedocs.io/en/latest.
