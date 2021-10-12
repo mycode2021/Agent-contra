@@ -18,7 +18,7 @@ mkdir -p $workspace/Agent-contra/log
 
 cd $workspace/Agent-contra
 
-nohup python train.py --game Contra-Nes --state Level1 --processes 6 &
+nohup python train.py --game Contra-Nes --state $1 --processes 6 &
 
 if [ -e "log/evaluate.log" ]; then
   gnome-terminal --geometry=100x10+0+400 -- bash -c "cd $workspace/Agent-contra; tail -f log/evaluate.log"
