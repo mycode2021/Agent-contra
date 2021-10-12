@@ -129,8 +129,7 @@ def run_train(opt):
                 writer.add_scalar("PPO agent (loss/episode)", total_loss, curr_episode)
                 optimizer.zero_grad()
                 total_loss.backward()
-                torch.nn.utils.clip_grad_norm_(
-                    list(global_model.parameters())+list(rnd_model.parameters()), 0.5)
+                torch.nn.utils.clip_grad_norm_(list(global_model.parameters())+list(rnd_model.parameters()), 0.5)
                 optimizer.step()
 
         with open("%s/train.log"%opt.log_path, "a") as f:
