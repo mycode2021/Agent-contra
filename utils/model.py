@@ -1,12 +1,20 @@
 from torch.nn import Conv2d, ReLU, Linear, init
+<<<<<<< HEAD
 import torch.nn as nn
 import numpy as np
+=======
+import numpy as np, torch.nn as nn
+>>>>>>> origin/master
 
 
 class PPO(nn.Module):
     def __init__(self, num_inputs, num_actions):
         super(PPO, self).__init__()
+<<<<<<< HEAD
         self.num_input, self.channels, self.kernel, self.stride, self.padding = num_inputs, 32, 3, 2, 1
+=======
+        self.num_input, self.channels, self.kernel, self.stride, self.padding = num_inputs, 32, 3, 2 ,1
+>>>>>>> origin/master
         self.fc = 32 * 6 * 6
         self.conv0 = Conv2d(out_channels=self.channels, 
                             kernel_size=self.kernel, 
@@ -68,8 +76,12 @@ class Flatten(nn.Module):
 class RND(nn.Module):
     def __init__(self, input_size, output_size):
         super(RND, self).__init__()
+<<<<<<< HEAD
         self.input_size = input_size
         self.output_size = output_size
+=======
+        self.input_size, self.output_size = input_size, output_size
+>>>>>>> origin/master
         feature_output = 7 * 7 * 64
         self.predictor = nn.Sequential(
             nn.Conv2d(in_channels=self.input_size,
@@ -128,6 +140,11 @@ class RND(nn.Module):
         return predict_feature, target_feature
 
     def reward(self, next_obs):
+<<<<<<< HEAD
         predict_next_feature, target_next_feature = self.forward(next_obs)
+=======
+        target_next_feature = self.target(next_obs)
+        predict_next_feature = self.predictor(next_obs)
+>>>>>>> origin/master
         intrinsic_reward = (target_next_feature-predict_next_feature).pow(2).sum(1) / 2
         return intrinsic_reward.data.cpu().numpy()

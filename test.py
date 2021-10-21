@@ -19,6 +19,7 @@ def run_test(opt):
     torch.manual_seed(123)
     memory = "%s/%s"%(opt.model_path, opt.from_model)
     assert os.path.isfile(memory), "The trained model does not exist."
+<<<<<<< HEAD
 
     try:
         env, num_inputs, num_actions = utils.create_runtime_env(
@@ -27,18 +28,38 @@ def run_test(opt):
         model.eval()
         model.load_state_dict(torch.load(memory, map_location=torch.device("cpu")))
         xscroll, state = 0, torch.from_numpy(env.reset())
+=======
+    os.path.isdir(opt.record_path) or os.makedirs(opt.record_path)
+
+    try:
+        env, num_inputs, num_actions = utils.create_runtime_env(
+            opt.game, opt.state, opt.action_type, opt.record_path)
+        model = utils.PPO(num_inputs, num_actions)
+        model.eval()
+        model.load_state_dict(torch.load(memory, map_location=torch.device("cpu")))
+        score, state = 0, torch.from_numpy(env.reset())
+>>>>>>> origin/master
 
         while True:
             logits, value = model(state)
             policy = F.softmax(logits, dim=1)
             action = torch.argmax(policy).item()
             state, reward, done, info = env.step(action)
+<<<<<<< HEAD
             xscroll = max(xscroll, info["xscroll"])
             env.render()
             sleep(0.03)
             if done:
                 print("Play %s level %s:\nxscroll %.2f, finish %s."%(
                     opt.game, opt.state, xscroll, info["finish"]))
+=======
+            score += reward
+            env.render()
+            sleep(0.03)
+            if done:
+                print("Play %s level %s:\nscore %.2f, evaluation %s."%(
+                      opt.game, opt.state, score, "success" if info["finish"] else "failure"))
+>>>>>>> origin/master
                 break
             state = torch.from_numpy(state)
     finally:

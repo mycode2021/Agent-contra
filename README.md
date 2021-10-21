@@ -36,7 +36,11 @@ cp -Rp retro/data/experimental/Contra-Nes "python's library directory"/site-pack
 ## 1. Train
 **For example:**
 ```bash
+<<<<<<< HEAD
 python train.py --game Contra-Nes --state Level1 --processes 6 (optional --render)
+=======
+python train.py --game Contra-Nes --state Level1 --processes 6
+>>>>>>> origin/master
 ```
 
 ## 2. Test

@@ -26,17 +26,28 @@ def run_test(data, opt):
         model = utils.PPO(num_inputs, num_actions)
         model.eval()
         model.load_state_dict(torch.load(memory, map_location=torch.device("cpu")))
+<<<<<<< HEAD
         xscroll, state = 0, torch.from_numpy(env.reset())
+=======
+        score, state = 0, torch.from_numpy(env.reset())
+>>>>>>> origin/master
 
         while True:
             logits, value = model(state)
             policy = F.softmax(logits, dim=1)
             action = torch.argmax(policy).item()
             state, reward, done, info = env.step(action)
+<<<<<<< HEAD
             xscroll = max(xscroll, info["xscroll"])
             if done:
                 print("model %s, xscroll %d, finish %s."%(
                     data, xscroll, info["finish"]))
+=======
+            score += reward
+            if done:
+                print("model %s, score %.2f, evaluation %s."%(
+                      data, score, "success" if info["finish"] else "failure"))
+>>>>>>> origin/master
                 break
             state = torch.from_numpy(state)
     finally:
