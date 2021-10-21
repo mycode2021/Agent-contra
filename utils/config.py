@@ -6,15 +6,11 @@ configure = {
         "type": float,
         "default": 1e-4
     },
-<<<<<<< HEAD
     "ext_gamma": {
         "type": float,
         "default": 0.99
     },
     "int_gamma": {
-=======
-    "gamma": {
->>>>>>> origin/master
         "type": float,
         "default": 0.9
     },
@@ -30,7 +26,6 @@ configure = {
         "type": float,
         "default": 0.2
     },
-<<<<<<< HEAD
     "ext_coef": {
         "type": float,
         "default": 2.0
@@ -39,19 +34,13 @@ configure = {
         "type": float,
         "default": 1.0
     },
-=======
->>>>>>> origin/master
     "update_proportion": {
         "type": float,
         "default": 0.25
     },
     "batch_size": {
         "type": int,
-<<<<<<< HEAD
         "default": 128
-=======
-        "default": 16
->>>>>>> origin/master
     },
     "num_epochs": {
         "type": int,

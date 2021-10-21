@@ -36,11 +36,7 @@ cp -Rp retro/data/experimental/Contra-Nes "python的library库"/site-packages/re
 ## 1. 训练工具
 **例如:**
 ```bash
-<<<<<<< HEAD
 python train.py --game Contra-Nes --state Level1 --processes 6 (可选 --render)
-=======
-python train.py --game Contra-Nes --state Level1 --processes 6
->>>>>>> origin/master
 ```
 
 ## 2. 测试工具
