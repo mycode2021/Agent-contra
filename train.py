@@ -1,5 +1,3 @@
-from time import strftime
-from torch import multiprocessing as mp
 from torch import nn
 from torch.distributions import Categorical
 from torch.nn import functional as F
