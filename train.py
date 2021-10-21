@@ -15,7 +15,7 @@ def get_args(config):
     args.add_argument("--game", type=str, default="Contra-Nes")
     args.add_argument("--state", type=str, default="Level1")
     args.add_argument("--action_type", type=str, default="complex")
-    args.add_argument("--processes", type=int, default=3)
+    args.add_argument("--processes", type=int, default=32)
     args.add_argument("--from_model", type=str, default="")
     args.add_argument("--render", action="store_true")
     [args.add_argument("--%s"%k, type=v["type"], default=v["default"]) for k, v in config.items()]
