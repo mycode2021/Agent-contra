@@ -4,6 +4,10 @@ English | [简体中文](./README.cn.md)
 
 Play Contra based on PPO with RND algorithm. This project is a testing deep reinforcement learning project. The project can be used for testing if you are interested. Good ideas are welcome.
 
+# UpdateLog
+
+This is an earlier project for testing deep reinforcement learning. Due to the OpenAI Retro Contest being held in 2018, the Python dependency module at that time was significantly different from the current one, and some methods were removed or changed, such as gym. So when deploying the environment, some modules need to specify versions.
+
 # Environment
 
 ## 1. System library
