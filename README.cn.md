@@ -24,7 +24,7 @@ yum install -y freeglut freeglut-devel
 ## 2. Python环境
 你需要安装python3.7或者3.8和一些必要的模块，如下:
 ```bash
-pip install gym=0.21.0 gym-retro=0.8.0 torch numpy opencv-python pyglet==1.5.15 tensorboard
+pip install gym==0.21.0 gym-retro==0.8.0 torch numpy opencv-python pyglet==1.5.15 tensorboard
 ```
 
 ## 3. 游戏ROM
