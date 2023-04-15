@@ -20,7 +20,7 @@ yum install -y freeglut freeglut-devel
 ## 2. Python and Modules
 You need to install python 3.7 or 3.8, and some necessary modules, as follows:
 ```bash
-pip install gym-retro torch numpy opencv-python pyglet==1.5.0 tensorboard
+pip install gym=0.21.0 gym-retro torch numpy opencv-python pyglet==1.5.0 tensorboard
 ```
 
 ## 3. Game ROM
